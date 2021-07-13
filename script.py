@@ -9,6 +9,7 @@ def port_scan(host):
 	port_range = [22, 23, 80, 443, 3389]
 	for dst_port in port_range:
 		src_port = random.randint(1025,65534)
+		# constructing packet
 		resp = sr1(
 		IP(dst=host)/TCP(sport=src_port,dport=dst_port,flags="S"),timeout=1,
 		verbose=0,
