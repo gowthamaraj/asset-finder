@@ -21,6 +21,7 @@ def port_scan(host):
 		elif(resp.haslayer(TCP)):
 			if(resp.getlayer(TCP).flags == 0x12):
 			    # Send a gratuitous RST to close the connection
+			    # Create gratuitous RST Packet
 			    send_rst = sr(
 				IP(dst=host)/TCP(sport=src_port,dport=dst_port,flags='R'),
 				timeout=1,
