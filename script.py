@@ -14,7 +14,7 @@ def port_scan(host):
 		IP(dst=host)/TCP(sport=src_port,dport=dst_port,flags="S"),timeout=1,
 		verbose=0,
 		)
-
+		# Packet is dropped by the firewall or host
 		if resp is None:
 			print(f"{host}:{dst_port} is filtered (silently dropped).")
 
