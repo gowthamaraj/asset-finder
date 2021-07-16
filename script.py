@@ -33,6 +33,7 @@ def port_scan(host):
 		    print(f"{host}:{dst_port} is closed.")
 
 		elif(resp.haslayer(ICMP)):
+		# ICMP unreachable
 			if(
 			    int(resp.getlayer(ICMP).type) == 3 and
 			    int(resp.getlayer(ICMP).code) in [1,2,3,9,10,13]
