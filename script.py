@@ -2,7 +2,16 @@
 
 from ipaddress import IPv4Network
 import random
+import argparse
 from scapy.all import ICMP, IP, sr1, TCP
+
+parser = argparse.ArgumentParser(description='Asset Finder Script!!!')
+parser.add_argument('-i','--ip', help='Host IP',required=False)
+parser.add_argument('-n','--network', help='Network Range (x.y.z.z/24)',required=False)
+
+args = parser.parse_args()
+
+print(args)
 
 def port_scan(host):
 	# Send SYN with random Src Port for each Dst port
@@ -40,35 +49,40 @@ def port_scan(host):
 			):
 			    print(f"{host}:{dst_port} is filtered (silently dropped).")
             
-# Define IP range to ping
-network = "192.168.103.0/24"
 
-# make list of addresses out of network, set live host counter
-addresses = IPv4Network(network)
-live_count = 0
+def network_scan(network):
+	# make list of addresses out of network, set live host counter
+	addresses = IPv4Network(network)
+	live_count = 0
 
-# Send ICMP ping request, wait for answer
-for host in addresses:
-    if (host in (addresses.network_address, addresses.broadcast_address)):
-        # Skip network and broadcast addresses
-        continue
+	# Send ICMP ping request, wait for answer
+	for host in addresses:
+		if (host in (addresses.network_address, addresses.broadcast_address)):
+		# Skip network and broadcast addresses
+			continue
 
-    resp = sr1(
-        IP(dst=str(host))/ICMP(),
-        timeout=2,
-        verbose=0,
-    )
+		resp = sr1(
+		IP(dst=str(host))/ICMP(),
+		timeout=2,
+		verbose=0,
+		)
 
-    if resp is None:
-        print(f"{host} is down or not responding.")
-    elif (
-        int(resp.getlayer(ICMP).type)==3 and
-        int(resp.getlayer(ICMP).code) in [1,2,3,9,10,13]
-    ):
-        print(f"{host} is blocking ICMP.")
-    else:
-        print(f"{host} is responding.")
-        port_scan(host)
-        live_count += 1
+		if resp is None:
+			print(f"{host} is down or not responding.")
+		elif (
+			int(resp.getlayer(ICMP).type)==3 and
+			int(resp.getlayer(ICMP).code) in [1,2,3,9,10,13]
+			):
+			print(f"{host} is blocking ICMP.")
+		else:
+			print(f"{host} is responding.")
+			port_scan(host)
+			live_count += 1
 
-print(f"{live_count}/{addresses.num_addresses} hosts are online.")
+	print(f"{live_count}/{addresses.num_addresses} hosts are online.")
+	
+	
+if args.ip is not None:
+	port_scan(args.ip)
+if args.network is not None:
+	network_scan(args.network)
