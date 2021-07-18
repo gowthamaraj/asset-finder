@@ -11,7 +11,6 @@ parser.add_argument('-n','--network', help='Network Range (x.y.z.z/24)',required
 
 args = parser.parse_args()
 
-print(args)
 
 def port_scan(host):
 	# Send SYN with random Src Port for each Dst port
