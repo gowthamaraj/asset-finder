@@ -11,6 +11,21 @@ parser.add_argument('-n','--network', help='Network Range (x.y.z.z/24)',required
 
 args = parser.parse_args()
 
+alive = []
+blocking = []
+down = []
+
+f = open('output.html', 'w')
+html_start = """<html>
+<head>
+<title>Asset Finder Output</title>
+</head>
+<body>
+<h2>Asset Finder Results:</h2>
+  
+</hr>
+"""
+f.write(html_start)
 
 def port_scan(host):
 	# Send SYN with random Src Port for each Dst port
@@ -67,14 +82,16 @@ def network_scan(network):
 		)
 
 		if resp is None:
-			print(f"{host} is down or not responding.")
+			down.append(host)
+			#print(f"{host} is down or not responding.")
 		elif (
 			int(resp.getlayer(ICMP).type)==3 and
 			int(resp.getlayer(ICMP).code) in [1,2,3,9,10,13]
 			):
-			print(f"{host} is blocking ICMP.")
+			blocking.append(host)
+			#print(f"{host} is blocking ICMP.")
 		else:
-			print(f"{host} is responding.")
+			alive.append(host)
 			port_scan(host)
 			live_count += 1
 
