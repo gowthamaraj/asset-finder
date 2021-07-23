@@ -22,6 +22,7 @@ html_start = """<html>
 </head>
 <body>
 <h2>Asset Finder Results:</h2>
+------------------------------
   
 </hr>
 """
@@ -29,7 +30,7 @@ f.write(html_start)
 
 def port_scan(host):
 	# Send SYN with random Src Port for each Dst port
-	f.write(f"Scanning Host: {host}")
+	f.write(f"<p>Scanning Host: {host}</p>")
 	port_range = [22, 23, 80, 443, 3389]
 	for dst_port in port_range:
 		src_port = random.randint(1025,65534)
@@ -99,7 +100,12 @@ def network_scan(network):
 
 	print(f"{live_count}/{addresses.num_addresses} hosts are online.")
 	
-	
+html_stop = """
+</body>
+</head>
+"""
+f.write(html_stop)	
+
 if args.ip is not None:
 	port_scan(args.ip)
 if args.network is not None:
