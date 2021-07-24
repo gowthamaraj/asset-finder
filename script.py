@@ -30,7 +30,7 @@ f.write(html_start)
 
 def port_scan(host):
 	# Send SYN with random Src Port for each Dst port
-	f.write(f"<p>Scanning Host: {host}</p>")
+	f.write(f"<p>Scanning Host: {host}</p><ul>")
 	port_range = [22, 23, 80, 443, 3389]
 	for dst_port in port_range:
 		src_port = random.randint(1025,65534)
@@ -41,7 +41,7 @@ def port_scan(host):
 		)
 		# Packet is dropped by the firewall or host
 		if resp is None:
-			f.write(f"{host}:{dst_port} is filtered (silently dropped).")
+			f.write(f"<li>{host}:{dst_port} is filtered (silently dropped).</li>")
 
 		elif(resp.haslayer(TCP)):
 			if(resp.getlayer(TCP).flags == 0x12):
@@ -52,10 +52,10 @@ def port_scan(host):
 				timeout=1,
 				verbose=0,
 			    )
-			    f.write(f"{host}:{dst_port} is open.")
+			    f.write(f"<li>{host}:{dst_port} is open.</li>")
 
 		elif (resp.getlayer(TCP).flags == 0x14):
-		    f.write(f"{host}:{dst_port} is closed.")
+		    f.write(f"<li>{host}:{dst_port} is closed.</li>")
 
 		elif(resp.haslayer(ICMP)):
 		# ICMP unreachable
@@ -63,8 +63,8 @@ def port_scan(host):
 			    int(resp.getlayer(ICMP).type) == 3 and
 			    int(resp.getlayer(ICMP).code) in [1,2,3,9,10,13]
 			):
-			    f.write(f"{host}:{dst_port} is filtered (silently dropped).")
-		f.write("</hr>")
+			    f.write(f"<li>{host}:{dst_port} is filtered (silently dropped).</li>")
+	f.write("</ul></hr>\n---------------------------")
             
 
 def network_scan(network):
@@ -100,13 +100,19 @@ def network_scan(network):
 
 	print(f"{live_count}/{addresses.num_addresses} hosts are online.")
 	
-html_stop = """
-</body>
-</head>
-"""
-f.write(html_stop)	
+	
 
 if args.ip is not None:
 	port_scan(args.ip)
 if args.network is not None:
 	network_scan(args.network)
+	
+html_stop = f"""
+<h1>Summary: </h1>
+Alive hosts: {alive}
+Blocking hosts: {blocking}
+Down hosts: {down}
+</body>
+</head>
+"""
+f.write(html_stop)
